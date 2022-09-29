@@ -1,4 +1,8 @@
+annoy
+pandas
+pytorch-lightning
+sentence-transformers
+tensorflow-hub
+tensorflow-text
 torch 
 torchvision
-pytorch-lightning
-  
