@@ -1,6 +1,6 @@
 from re import L
 from annoy import AnnoyIndex
-from encoder import SentenceEncoder
+from encoder import SentenceEncoder, USEEncoder
 from intents import get_intents_and_labels, build_rev_index
 import numpy as np
 from utils import create_kfold_data
@@ -47,6 +47,7 @@ def eval_model(ann, train_indexes, test_indexes, vecs, labels, num_nbrs=1):
   return np.sum(preds==gold)
   
 encoder = SentenceEncoder()
+# encoder = USEEncoder()
 logging.info(f'{encoder.dim} Normalized: {encoder.unit_norm}')
 sentences, labels, intent_index = get_intents_and_labels('ws_2022-09-23.json')
 
