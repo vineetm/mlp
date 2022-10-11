@@ -1,6 +1,7 @@
 from scipy.stats import multivariate_normal
 import numpy as np
 import logging
+import time
 from encoder import SentenceEncoder, USEEncoder
 from intents import get_intents_and_labels, build_rev_index
 from utils import create_kfold_data
@@ -98,7 +99,7 @@ def find_range_c(vecs, labels, k_folds, num_labels, fraction_heldout=0.3):
   logging.info(f'Fitting C. #Train:{num_train} #Heldout{num_heldout}')
 
   last_c, best_c, best_acc = 0, 0, 0.
-  c = 1e-5
+  c = 1e-4
   while c < 1:
     acc = np.zeros(len(k_folds))
     for i, k_fold in enumerate(k_folds):
@@ -118,14 +119,17 @@ def find_range_c(vecs, labels, k_folds, num_labels, fraction_heldout=0.3):
     c *= 10
   return last_c, best_c, best_acc
 
+
 sentences, labels, intent_index = get_intents_and_labels('ws_2022-09-23.json')
 labels = np.array(labels)
 rev_index = build_rev_index(intent_index)
 
+start_time = time.time()
 k_folds = create_kfold_data(sentences, labels)
-# encoder = SentenceEncoder()
-encoder = USEEncoder()
+encoder = SentenceEncoder()
+# encoder = USEEncoder()
 vecs = encoder.encode(sentences)
+
 
 start_c, end_c, best_acc = find_range_c(vecs, labels, k_folds, len(intent_index))
 # logging.info(f'{start_c} {end_c} {best_acc: 0.3f}')
@@ -138,4 +142,6 @@ for i in range(len(k_folds)):
   train, test = k_folds[i]['train'], k_folds[i]['test']
   preds = fit_predict(len(intent_index), vecs, labels, train, test, end_c)
   acc[i] = preds/len(test)
-logging.info(f'Acc: {acc} {np.average(acc):0.3f}')
+
+end_time = time.time()
+logging.info(f'Acc: {acc} {np.average(acc):0.3f} Time: {end_time-start_time:0.2f}s')
